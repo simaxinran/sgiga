@@ -1,0 +1,23 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "sgiga"
+version = "0.1.0"
+description = "Second-gradient isogeometric analysis for continuum mechanics (hyperelasticity, second-gradient / pantographic sheets)"
+readme = "README.md"
+requires-python = ">=3.10"
+authors = [{ name = "Max Stilz" }]
+license = "MIT"
+dependencies = [
+    "numpy>=2.0",
+    "scipy>=1.14",
+    "matplotlib>=3.9",
+    "tqdm>=4.66",
+    "meshio>=5.3",
+    "dill>=0.3.8",
+]
+
+[tool.setuptools.packages.find]
+include = ["sgiga*"]
