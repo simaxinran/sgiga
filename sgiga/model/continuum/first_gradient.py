@@ -60,7 +60,8 @@ class First_gradient():
         if self.dim == 3:
             self.srf_w_J0 = []
             for i in range(6):
-                self.srf_w_J0.append(self.mesh.surface_mesh[i].reference_mappings(Z[self.mesh.surface_qDOF[i].ravel()]))
+                mappings = self.mesh.surface_mesh[i].reference_mappings(Z[self.mesh.surface_qDOF[i].ravel()])
+                self.srf_w_J0.append(mappings[-1] if isinstance(mappings, tuple) else mappings)
 
     def assembler_callback(self):
         self.elfDOF = []

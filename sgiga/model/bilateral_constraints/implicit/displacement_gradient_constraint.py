@@ -31,7 +31,11 @@ class Displacement_constraint:
         self.Q_con = self.subsystem.Z[self.con_qDOF]
         self.nz_con = len(self.Q_con)
         self.con_elDOF_global = self.con_qDOF[self.con_mesh.elDOF]
-        self.w_J0 = self.con_mesh.reference_mappings(self.Q_con)
+        # Mesh2D/Mesh3D.reference_mappings returns (kappa0_xi_inv, N_X, w_J0),
+        # but Mesh1D.reference_mappings (used for edge_id constraints) returns
+        # just w_J0 -- con_mesh can be either, depending on srf_id vs edge_id
+        mappings = self.con_mesh.reference_mappings(self.Q_con)
+        self.w_J0 = mappings[-1] if isinstance(mappings, tuple) else mappings
 
         # self.uDOF = self.subsystem.uDOF
 
@@ -125,7 +129,7 @@ class Displacement_constraint:
 
 # TODO: Only constraint on gradient and not position (possible on dirichlet boundary?)
 class Gradient_constraint:
-    def __init__(self, subsystem, la_mesh, con_id=0, x=0, _X=0):
+    def __init__(self, subsystem, la_mesh, con_id=0, x=0, _X=0, disp=0):
         self.subsystem = subsystem
         self.mesh = self.subsystem.mesh
         self.con_mesh = subsystem.mesh.surface_mesh[con_id]
@@ -139,6 +143,14 @@ class Gradient_constraint:
         self.Nb_X = self.mesh.Nb_X(self.subsystem.Z, con_id)
         # self.Nb_xixi = self.mesh.Nb_xixi[con_id]
         self._X = _X
+        # prescribed target value for the gradient component d(u_x)/dX -- 0
+        # (default) keeps the boundary flat/unchanged; a nonzero (optionally
+        # time-varying) target drives deformation purely through the gradient
+        # degree of freedom, independent of the boundary's displacement
+        if not callable(disp):
+            self.dg = lambda t, qe: disp
+        else:
+            self.dg = disp
 
     def assembler_callback(self):
         self.qDOF = self.subsystem.qDOF
@@ -147,7 +159,11 @@ class Gradient_constraint:
         self.con_fDOF = np.intersect1d(self.con_qDOF, self.fDOF)
         self.Q_con = self.subsystem.Z[self.con_qDOF]
         self.nz_con = len(self.Q_con)
-        self.w_J0 = self.con_mesh.reference_mappings(self.Q_con)
+        # Mesh2D/Mesh3D.reference_mappings returns (kappa0_xi_inv, N_X, w_J0),
+        # but Mesh1D.reference_mappings (used for edge_id constraints) returns
+        # just w_J0 -- con_mesh can be either, depending on srf_id vs edge_id
+        mappings = self.con_mesh.reference_mappings(self.Q_con)
+        self.w_J0 = mappings[-1] if isinstance(mappings, tuple) else mappings
         self.con_elDOF_global = self.con_qDOF[self.con_mesh.elDOF]
         # self.uDOF = self.subsystem.uDOF
 
@@ -163,6 +179,7 @@ class Gradient_constraint:
                 dqi_X += Nb_X_eli[a, self._X] * (
                     +qe[self.x * self.mesh.nn_el + a] - Qe[self.x * self.mesh.nn_el + a]
                 )
+            dqi_X -= self.dg(t, qe)
             for a_tilde in range(self.la_mesh.nn_el):
                 ge[a_tilde] += N_la_eli[a_tilde] * dqi_X * w_J0
         return ge

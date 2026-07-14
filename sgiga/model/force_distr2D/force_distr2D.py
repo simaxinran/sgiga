@@ -15,13 +15,12 @@ class Force_distr2D():
         self.uDOF = self.subsystem.uDOF
         self.srf_qDOF = self.subsystem.mesh.surface_qDOF[self.srf_idx].ravel()
         self.Q_srf = self.subsystem.Z[self.srf_qDOF]
-        self.srf_w_J0 = self.srf_mesh.reference_mappings(self.Q_srf)
 
     def E_pot(self, t, q):
         return self.subsystem.force_distr2D_pot(t, q, self.force_distr2D, self.srf_idx)
 
     def f_pot(self, t, q):
-        return self.subsystem.force_distr2D(t, q, self.force_distr2D, self.srf_idx, self.srf_w_J0)
+        return self.subsystem.force_distr2D(t, q, self.force_distr2D, self.srf_idx)
 
     def f_pot_q(self, t, q, coo):
         self.subsystem.force_distr2D_q(t, q, coo, self.force_distr2D, self.srf_idx)
