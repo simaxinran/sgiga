@@ -1,3 +1,11 @@
+"""Pantographic ortho-block: second-gradient continuum model and IGA discretization.
+
+Reference:
+    M. Stilz, S. R. Eugster, J. Harsch, F. Gutmann, G. Ganzenmueller, S. Hiermaier,
+    "A second-gradient elasticity model and isogeometric analysis for the
+    pantographic ortho-block," International Journal of Solids and Structures,
+    vol. 280, 112358, 2023. https://doi.org/10.1016/j.ijsolstr.2023.112358
+"""
 import numpy as np
 import matplotlib.pyplot as plt
 import os

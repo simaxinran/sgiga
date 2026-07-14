@@ -43,10 +43,42 @@ python examples/continuum.py
 | `continuum_lagrange.py` | Same first-gradient hyperelastic formulation on a 2D rectangle, using a classical Lagrange discretization instead of B-splines, for comparison. |
 | `continuum_second_gradient.py` | Second-gradient continuum (`Pantobox_beam_network` material) cube under tension — the microstructure-aware theory behind the pantographic/metamaterial examples below. |
 | `continuum_batch.py` | Batch-style driver for first-gradient hyperelastic solves (Treloar rubber test data) over a larger 2D mesh, with solutions serialized via `dill`. |
-| `pantographic_ortho_block.py` | 3D pantographic/orthotropic block under tension and torsion — a second-gradient beam-network metamaterial on a larger IGA mesh. |
+| `pantographic_ortho_block.py` | 3D pantographic/orthotropic block under tension and torsion — a second-gradient beam-network metamaterial on a larger IGA mesh. See [Stilz et al. (2023)](https://doi.org/10.1016/j.ijsolstr.2023.112358). |
 
 Output `.vtu`/`.pvd` files can be opened in [ParaView](https://www.paraview.org/) to
 visualize the deformed configuration.
+
+### Gradient boundary conditions
+
+Second-gradient continua support constraining the displacement *gradient* on a
+boundary, not just the displacement itself (needed e.g. to prescribe a flat/clamped
+edge in the pantographic ortho-block). Both are implemented as Lagrange-multiplier
+constraints in `sgiga/model/bilateral_constraints/implicit/displacement_gradient_constraint.py`:
+
+- `Displacement_constraint` — standard Dirichlet condition on the displacement field.
+- `Gradient_constraint` — constrains a component of the displacement gradient
+  (∂u/∂X) on a boundary surface.
+
+`examples/pantographic_ortho_block.py` wires both up through its
+`weak_constraint_srf()` helper (inside `ortho_block_cuboid()`), which builds a shared
+boundary `Mesh2D` for the Lagrange multipliers and instantiates either constraint type
+per boundary surface depending on whether a gradient direction (`_X`) or a plain
+displacement is passed in.
+
+## Visuals
+
+Renders and clips made in ParaView from the examples above:
+
+![pantographic_ortho_block.py: gradient boundary condition](docs/videos/panto_ortho_block_gradient_boundary.gif)
+
+*Pantographic ortho-block under a gradient boundary condition (see
+[Gradient boundary conditions](#gradient-boundary-conditions) above). Full-quality
+clip: [panto_ortho_block_gradient_boundary.mp4](docs/videos/panto_ortho_block_gradient_boundary.mp4).*
+
+<!-- ![continuum.py: deformed cube](docs/images/continuum_cube.png) -->
+
+*(add more with `![alt](docs/images/your-file.png)` — GIFs render inline on GitHub,
+.mp4/.avi only get a click-to-play link on the file's own page.)*
 
 ## Project structure
 
@@ -58,8 +90,18 @@ sgiga/
   solver/            Newton, Euler backward, generalized-alpha solvers
   utility/           sparse-matrix assembly container, VTK post-processing
 examples/            the 5 runnable examples described above
+docs/images/         screenshots/renders embedded above
+docs/videos/         short clips embedded above (GitHub inlines short .mp4/.gif well)
 doc/dictionary.md     glossary of the variable-naming conventions used throughout
 ```
+
+## References
+
+- M. Stilz, S. R. Eugster, J. Harsch, F. Gutmann, G. Ganzenmüller, S. Hiermaier,
+  "A second-gradient elasticity model and isogeometric analysis for the pantographic
+  ortho-block," *International Journal of Solids and Structures*, vol. 280, 112358,
+  2023. [doi:10.1016/j.ijsolstr.2023.112358](https://doi.org/10.1016/j.ijsolstr.2023.112358)
+  — theory and formulation behind `examples/pantographic_ortho_block.py`.
 
 ## Acknowledgments
 

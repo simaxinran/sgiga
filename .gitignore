@@ -60,6 +60,10 @@ dist
 *.mp4
 *.avi
 
+# curated demo media (checked in on purpose)
+!docs/images/*.*
+!docs/videos/*.*
+
 # vtk files
 *.vtu
 *.vtk
