@@ -16,7 +16,6 @@ dependencies = [
     "matplotlib>=3.9",
     "tqdm>=4.66",
     "meshio>=5.3",
-    "dill>=0.3.8",
 ]
 
 [tool.setuptools.packages.find]
