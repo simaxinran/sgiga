@@ -20,7 +20,7 @@ below (12 scripts: 10 working, 2 kept as documented known-limitation references)
 Requires Python ≥3.10.
 
 ```bash
-git clone <this-repo-url>
+git clone https://github.com/simaxinran/sgiga
 cd sgiga
 python3 -m venv .venv
 source .venv/bin/activate
